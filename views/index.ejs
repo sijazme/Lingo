@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Lingo!</title>
+
+	<script src = "https://code.jquery.com/jquery-1.11.1.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+<script>
+
+     var json_array = '<%= words %>'.split(',');
+	  
+
+	$( document ).ready(function() {
+	   
+		   translateList(json_array).then(function(data) {
+						
+						//print(data);
+						//consoleprint(data);
+						showQuiz(data);
+						 
+					});
+   
+	});
+
+	function showQuiz(data)
+	{
+			var myQuestions = generateQuestions(data);
+
+			var quizContainer =  $("#quiz");
+			var resultsContainer =  $("#results");
+			var submitButton = $("#submit");
+
+			generateQuiz(myQuestions, quizContainer, resultsContainer, submitButton);
+			
+	}
+
+	
+
+	function translateList(list)
+	{
+
+	  return new Promise(function (resolve, reject)  {
+
+	  var t_words = [list.length];
+
+	     if(list != null)
+		 { 
+			 for(i = 0; i < list.length; i++)
+			  {
+			     var word = list[i];
+				
+			     translateWord(i, word).then(function(data) {
+				    
+						//t_words.push(data);
+					    
+						t_words[data.index] = data.text;
+
+					    if(t_words.length == list.length)
+						  resolve(t_words);
+						
+					});
+			  }
+		 }
+
+	  });
+	}
+
+	function print(array)
+	{
+	   $("#mypanel").html(array.toString());
+	}
+
+	function translateWord(i, word) {
+
+			return new Promise(function (resolve, reject)  {
+
+				  var sourceLang = 'fi';
+				  var targetLang = 'en';
+				  var translatedText = '';
+		  
+				  var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" 
+							+ sourceLang + "&tl=" + targetLang + "&dt=t&q=" + encodeURI(word);
+
+					$.getJSON(url).done(function(data) {
+						  translatedText = data[0][0][0];
+
+						  var obj2 = 
+							{
+								index: i,
+								text: translatedText
+							};
+
+						  // JSON.parse(JSON.stringify(obj2))
+						  
+						  resolve(obj2);
+						});
+				
+				});
+		 
+    }
+
+	function consoleprint(list)
+	{
+	   for(i = 0; i < json_array.length; i++)
+		{
+		    	console.log(json_array[i] + ' IN ENGLISH MEANS ' + list[i]);			
+		}	
+	}
+
+	function generateQuestions(list)
+	{
+	   var questions = [];
+
+	   for(i = 0; i < json_array.length; i++)
+		{	
+
+			var max = list.length;
+		    var r1 = Math.floor(Math.random() * Math.floor(max));
+			var r2 = Math.floor(Math.random() * Math.floor(max));
+			
+			var answers = [3];
+			var index = Math.floor(Math.random() * Math.floor(3));
+						
+			answers[index] = list[i];
+			var option = '';
+
+			
+			switch(index)
+			{
+				case 0:
+					answers[1] = list[r1];
+					answers[2] = list[r2];
+					option = 'a';
+				break;
+
+				case 1:
+					answers[0] = list[r1];
+					answers[2] = list[r2];
+					option = 'b';
+				break;
+
+				case 2:
+					answers[0] = list[r1];
+					answers[1] = list[r2];
+					option = 'c';
+				break;
+			}
+
+		//console.log("CORECT ANSWER IS " + option );
+
+			var obj2 = 
+					{
+						question: json_array[i],
+						answers:  
+								  {
+						            "a": answers[0],
+									"b": answers[1],
+									"c": answers[2],
+						          },
+						correctAnswer: option
+					};
+
+					
+			
+			var string = JSON.stringify(obj2);
+			
+			var jobj = JSON.parse(string);
+			
+			questions.push(jobj);
+			
+			console.log(jobj);
+		}
+
+		return questions;
+	}
+
+	function generateQuiz(questions, quizContainer, resultsContainer, submitButton){
+
+					function showQuestions(questions, quizContainer)
+									{
+		
+											var output = [];
+											var answers;
+
+
+											// for each question...
+											for(var i=0; i< questions.length; i++){
+
+												//console.log(questions[i].answers);
+		
+												// first reset the list of answers
+												answers = [];
+
+												// for each available answer to this question...
+												for(letter in questions[i].answers){
+
+													// ...add an html radio button
+													answers.push(
+														'<label>'
+															+ '<input type="radio" name="question'+i+'" value="'+letter+'">'
+															+ letter + ': '
+															+ questions[i].answers[letter]
+														+ '</label>'
+													);
+												}
+
+												
+
+												// add this question and its answers to the output
+												output.push(
+													'<div class="question">' + questions[i].question + '</div>'
+													+ '<div class="answers">' + answers.join('') + '</div>'
+												);
+											}
+
+										// finally combine our output list into one string of html and put it on the page
+										
+										quizContainer.html(output.join(''));
+								}
+
+					function showResults(questions, quizContainer, resultsContainer)
+								{
+										
+	
+										// gather answer containers from our quiz
+										//var answerContainers = quizContainer.querySelectorAll('.answers');
+
+										var answerContainers = quizContainer.find('.answers');
+
+	
+										// keep track of user's answers
+										var userAnswer = '';
+										var numCorrect = 0;
+	
+										// for each question...
+										for(var i=0; i<questions.length; i++){
+
+											
+											userAnswer = (answerContainers[i].querySelector('input[name=question'+i+']:checked')||{}).value;
+																						
+											console.log('correct answer is ' + questions[i].correctAnswer);
+		
+											// if answer is correct
+											if(userAnswer===questions[i].correctAnswer){
+												// add to the number of correct answers
+												numCorrect++;
+			
+												// color the answers green
+												answerContainers[i].style.color = 'lightgreen';
+
+												
+											}
+											// if answer is wrong or blank
+											else{
+												// color the answers red
+												answerContainers[i].style.color = 'red';
+												//console.log('WRONG ANSWER');
+											}
+										}
+
+										// show number of correct answers out of total
+										resultsContainer.html(numCorrect + ' out of ' + questions.length);
+								}
+
+					// show the questions
+					showQuestions(questions, quizContainer);
+
+
+					submitButton.bind( "click", function() {
+					  
+						showResults(questions, quizContainer, resultsContainer);
+					});
+		}
+
+</script>
+
+  <div class="container" >
+     <div class="heading"> Lingo! </div>
+	 
+		 <div id="quiz"></div>
+			<button id="submit">Get Results</button>
+			<div id="results"></div>
+		</div>
+
+		 <div id="mypanel"></div>
+		
+
+	</div>
+
+</body>
+
+</html>

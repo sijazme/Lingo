@@ -1,0 +1,2 @@
+C:\Users\ijazs\source\repos\Lingo\bin\Microsoft.NodejsTools.WebRole.dll
+C:\Users\ijazs\source\repos\Lingo\obj\Debug\Lingo.njsprojAssemblyReference.cache
