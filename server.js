@@ -5,9 +5,26 @@ var app = express();
 
 var port = process.env.PORT || 8080;
 
-var words = ["Ajolupaa", "Kuljettajalla", "Taksinkuljettaja", "Ajoneuvossa", "Taksi Ajoneuvossa",
-    "Reitti", "Vuotta", "Kuukautta", "taksivalaisin", "Taksa Mittari", "Rahti",
-    "Rikoksista", "Seksuaalirikokseen", "Taksin hinnasto"];
+var words = [];
+
+
+var fs = require("fs");
+
+try {
+    // read contents of the file
+    const data = fs.readFileSync('words.txt', 'UTF-8');
+
+    // split the contents by new line
+    words = data.split(/\r?\n/);
+
+    // print all lines
+    //lines.forEach((line) => {
+    //    console.log(line);
+    //});
+
+} catch (err) {
+    console.error(err);
+}
 
 app.use(express.static("public"));
 
