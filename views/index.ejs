@@ -17,6 +17,8 @@
 
 	$( document ).ready(function() {
 	   
+		   shuffle(json_array);
+
 		   translateList(json_array).then(function(data) {
 						
 						//print(data);
@@ -112,6 +114,24 @@
 		}	
 	}
 
+	function getRandom(arr, n) {
+		var result = new Array(n),
+			len = arr.length,
+			taken = new Array(len);
+		if (n > len)
+			throw new RangeError("getRandom: more elements taken than available");
+		while (n--) {
+			var x = Math.floor(Math.random() * len);
+			result[n] = arr[x in taken ? taken[x] : x];
+			taken[x] = --len in taken ? taken[len] : len;
+		}
+		return result;
+	}
+
+	function shuffle(array) {
+		array.sort(() => Math.random() - 0.5);
+	}
+
 	function generateQuestions(list)
 	{
 	   var questions = [];
@@ -120,38 +140,49 @@
 		{	
 
 			var max = list.length;
-		    var r1 = Math.floor(Math.random() * Math.floor(max));
-			var r2 = Math.floor(Math.random() * Math.floor(max));
-			
+
+			var arr = getRandom(list,2);
+
+			var a0 = list[i];
+			var a1 = '';
+			var a2 = '';
+
+			do{
+			  a1 = getRandom(list,1)[0];
+			  a2 = getRandom(list,1)[0];
+			} while(a0 == a1 ||  a1 == a2 || a0 == a2 );
+
 			var answers = [3];
+
 			var index = Math.floor(Math.random() * Math.floor(3));
 						
 			answers[index] = list[i];
-			var option = '';
-
+			
+			var option = '';			
+			
 			
 			switch(index)
 			{
 				case 0:
-					answers[1] = list[r1];
-					answers[2] = list[r2];
+					answers[1] = a1;
+					answers[2] = a2;
 					option = 'a';
 				break;
 
 				case 1:
-					answers[0] = list[r1];
-					answers[2] = list[r2];
+					answers[0] = a1;
+					answers[2] = a2;
 					option = 'b';
 				break;
 
 				case 2:
-					answers[0] = list[r1];
-					answers[1] = list[r2];
+					answers[0] = a1;
+					answers[1] = a2;
 					option = 'c';
 				break;
 			}
 
-		//console.log("CORECT ANSWER IS " + option );
+		
 
 			var obj2 = 
 					{

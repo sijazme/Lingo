@@ -17,11 +17,6 @@ try {
     // split the contents by new line
     words = data.split(/\r?\n/);
 
-    // print all lines
-    //lines.forEach((line) => {
-    //    console.log(line);
-    //});
-
 } catch (err) {
     console.error(err);
 }
