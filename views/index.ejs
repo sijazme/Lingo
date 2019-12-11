@@ -137,26 +137,23 @@
 	   var questions = [];
 
 	   for(i = 0; i < json_array.length; i++)
-		{	
-
+		{
 			var max = list.length;
-
-			var arr = getRandom(list,2);
-
+			
 			var a0 = list[i];
 			var a1 = '';
 			var a2 = '';
 
 			do{
-			  a1 = getRandom(list,1)[0];
-			  a2 = getRandom(list,1)[0];
+			  var arr = getRandom(list,2);
+			  a1 = arr[0];
+			  a2 = arr[1];
 			} while(a0 == a1 ||  a1 == a2 || a0 == a2 );
 
-			var answers = [3];
-
 			var index = Math.floor(Math.random() * Math.floor(3));
-						
-			answers[index] = list[i];
+
+			var answers = [3];
+			answers[index] = a0;
 			
 			var option = '';			
 			
